@@ -216,7 +216,7 @@ const UserPage = () => {
                 onClick={() => setOpenModal(true)}
               >
                 Thêm mới
-              </Button>
+              </Button>,
             </Access>,
           ]}
         />

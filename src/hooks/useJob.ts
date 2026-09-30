@@ -99,9 +99,9 @@ export const useJob = (queryString: string | null = null) => {
 };
 
 export const useJobById = (id: string | null) => {
-  return useQuery({
+  return useQuery<IBackendRes<IJob>>({
     queryKey: ["jobs", id],
-    queryFn: () => callFetchJobById(id as string),
+    queryFn: () => callFetchJobById(id as string) as any,
     enabled: !!id,
   });
 };

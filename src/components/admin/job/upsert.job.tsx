@@ -5,6 +5,7 @@ import {
   Divider,
   Form,
   Row,
+  Spin,
   message,
   notification,
 } from "antd";
@@ -64,8 +65,8 @@ const ViewUpsertJob = (props: any) => {
       const arr = skillList.map((item) => {
         return {
           label: item.name as string,
-          value: item.id as string,
-          key: item.id,
+          value: `${item.id}`,
+          key: `${item.id}`,
         };
       });
       setSkills(arr);
@@ -74,34 +75,52 @@ const ViewUpsertJob = (props: any) => {
 
   useEffect(() => {
     if (dataUpdate && id) {
-      setValue(dataUpdate.data?.description as string);
+      setValue(dataUpdate.description || "");
 
-      setCompanies([
-        {
-          label: dataUpdate.data?.company?.name as string,
-          value:
-            `${dataUpdate.data?.company?.id}@#$${dataUpdate.data?.company?.logo}` as string,
-          key: dataUpdate.data?.company?.id,
-        },
-      ]);
+      if (dataUpdate.company) {
+        setCompanies([
+          {
+            label: dataUpdate.company.name as string,
+            value:
+              `${dataUpdate.company.id}@#$${dataUpdate.company.logo ?? ""}` as string,
+            key: dataUpdate.company.id,
+          },
+        ]);
+      }
 
-      const skillIds = dataUpdate.data?.skills?.map((item: ISkill) => item.id);
+      const skillIds =
+        dataUpdate.skills?.map((item: any) => `${item.id}`) || [];
+
+      if (dataUpdate.skills) {
+        setSkills((prev) => {
+          const existingIds = new Set(prev.map((s) => s.value));
+          const newSkills = dataUpdate.skills
+            .filter((s: any) => !existingIds.has(`${s.id}`))
+            .map((s: any) => ({
+              label: s.name as string,
+              value: `${s.id}`,
+              key: `${s.id}`,
+            }));
+          return [...prev, ...newSkills];
+        });
+      }
 
       form.setFieldsValue({
         ...dataUpdate,
-        company: {
-          label: dataUpdate.data?.company?.name as string,
-          value:
-            `${dataUpdate.data?.company?.id}@#$${dataUpdate.data?.company?.logo}` as string,
-          key: dataUpdate.data?.company?.id,
-        },
+        company: dataUpdate.company
+          ? {
+            label: dataUpdate.company.name as string,
+            value:
+              `${dataUpdate.company.id}@#$${dataUpdate.company.logo ?? ""}` as string,
+            key: dataUpdate.company.id,
+          }
+          : undefined,
         skills: skillIds,
-        startDate: dataUpdate.data?.startDate
-          ? dayjs(dataUpdate.data.startDate)
-          : null,
-        endDate: dataUpdate.data?.endDate
-          ? dayjs(dataUpdate.data.endDate)
-          : null,
+        startDate: dataUpdate.startDate ? dayjs(dataUpdate.startDate) : null,
+        endDate: dataUpdate.endDate ? dayjs(dataUpdate.endDate) : null,
+        active:
+          (dataUpdate as any)?.isActive ?? (dataUpdate as any)?.active ?? true,
+        description: dataUpdate.description || "",
       });
     }
   }, [dataUpdate, id, form]);
@@ -124,7 +143,7 @@ const ViewUpsertJob = (props: any) => {
     const cp = values?.company?.value?.split("@#$");
     const companyData = {
       id: cp && cp.length > 0 ? cp[0] : "",
-      name: values.company.label,
+      name: values?.company?.label,
       logo: cp && cp.length > 1 ? cp[1] : "",
     };
 
@@ -141,14 +160,18 @@ const ViewUpsertJob = (props: any) => {
       quantity: values.quantity,
       level: values.level,
       description: value, // Lấy từ state ReactQuill
-      startDate: dayjs(values.startDate, "DD/MM/YYYY").toDate(),
-      endDate: dayjs(values.endDate, "DD/MM/YYYY").toDate(),
+      startDate: dayjs(values.startDate).toDate(),
+      endDate: dayjs(values.endDate).toDate(),
       active: values.active,
+      isActive: values.active,
     };
 
-    if (dataUpdate?.data?.id) {
+    if (dataUpdate?.id || id) {
       // UPDATE
-      await updateJob({ id: dataUpdate.data.id, job: commonData });
+      await updateJob({
+        id: (dataUpdate?.id || id) as string,
+        job: commonData,
+      });
       navigate("/admin/job");
     } else {
       // CREATE
@@ -170,180 +193,197 @@ const ViewUpsertJob = (props: any) => {
       </div>
       <div>
         <ConfigProvider locale={enUS}>
-          <ProForm
-            form={form}
-            onFinish={onFinish}
-            submitter={{
-              searchConfig: {
-                resetText: "Hủy",
-                submitText: <>{id ? "Cập nhật Job" : "Tạo mới Job"}</>,
-              },
-              onReset: () => navigate("/admin/job"),
-              render: (_: any, dom: any) => (
-                <FooterToolbar>{dom}</FooterToolbar>
-              ),
-              submitButtonProps: {
-                icon: <CheckSquareOutlined />,
-                loading: isCreating || isUpdating, // Loading state
-              },
-            }}
-          >
-            <Row gutter={[20, 20]}>
-              <Col span={24} md={12}>
-                <ProFormText
-                  label="Tên Job"
-                  name="name"
-                  rules={[
-                    { required: true, message: "Vui lòng không bỏ trống" },
-                  ]}
-                  placeholder="Nhập tên job"
-                />
-              </Col>
-              <Col span={24} md={6}>
-                <ProFormSelect
-                  name="skills"
-                  label="Kỹ năng yêu cầu"
-                  options={skills}
-                  placeholder="Please select a skill"
-                  rules={[
-                    { required: true, message: "Vui lòng chọn kỹ năng!" },
-                  ]}
-                  allowClear
-                  mode="multiple"
-                  fieldProps={{ suffixIcon: null }}
-                />
-              </Col>
-              <Col span={24} md={6}>
-                <ProFormSelect
-                  name="location"
-                  label="Địa điểm"
-                  options={LOCATION_LIST.filter((item) => item.value !== "ALL")}
-                  placeholder="Please select a location"
-                  rules={[
-                    { required: true, message: "Vui lòng chọn địa điểm!" },
-                  ]}
-                />
-              </Col>
-              <Col span={24} md={6}>
-                <ProFormDigit
-                  label="Mức lương"
-                  name="salary"
-                  rules={[
-                    { required: true, message: "Vui lòng không bỏ trống" },
-                  ]}
-                  placeholder="Nhập mức lương"
-                  fieldProps={{
-                    addonAfter: " đ",
-                    formatter: (value) =>
-                      `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
-                    parser: (value) =>
-                      +(value || "").replace(/\$\s?|(,*)/g, ""),
-                  }}
-                />
-              </Col>
-              <Col span={24} md={6}>
-                <ProFormDigit
-                  label="Số lượng"
-                  name="quantity"
-                  rules={[
-                    { required: true, message: "Vui lòng không bỏ trống" },
-                  ]}
-                  placeholder="Nhập số lượng"
-                />
-              </Col>
-              <Col span={24} md={6}>
-                <ProFormSelect
-                  name="level"
-                  label="Trình độ"
-                  valueEnum={{
-                    INTERN: "INTERN",
-                    FRESHER: "FRESHER",
-                    JUNIOR: "JUNIOR",
-                    MIDDLE: "MIDDLE",
-                    SENIOR: "SENIOR",
-                  }}
-                  placeholder="Please select a level"
-                  rules={[{ required: true, message: "Vui lòng chọn level!" }]}
-                />
-              </Col>
-
-              {(dataUpdate?.data?.id || !id) && (
-                <Col span={24} md={6}>
-                  <ProForm.Item
-                    name="company"
-                    label="Thuộc Công Ty"
+          <Spin spinning={isLoadingJob}>
+            <ProForm
+              form={form}
+              onFinish={onFinish}
+              submitter={{
+                searchConfig: {
+                  resetText: "Hủy",
+                  submitText: <>{id ? "Cập nhật Job" : "Tạo mới Job"}</>,
+                },
+                onReset: () => navigate("/admin/job"),
+                render: (_: any, dom: any) => (
+                  <FooterToolbar>{dom}</FooterToolbar>
+                ),
+                submitButtonProps: {
+                  icon: <CheckSquareOutlined />,
+                  loading: isCreating || isUpdating, // Loading state
+                },
+              }}
+            >
+              <Row gutter={[20, 20]}>
+                <Col span={24} md={12}>
+                  <ProFormText
+                    label="Tên Job"
+                    name="name"
                     rules={[
-                      { required: true, message: "Vui lòng chọn company!" },
+                      { required: true, message: "Vui lòng không bỏ trống" },
+                    ]}
+                    placeholder="Nhập tên job"
+                  />
+                </Col>
+                <Col span={24} md={6}>
+                  <ProFormSelect
+                    name="skills"
+                    label="Kỹ năng yêu cầu"
+                    options={skills}
+                    placeholder="Please select a skill"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn kỹ năng!" },
+                    ]}
+                    allowClear
+                    mode="multiple"
+                    fieldProps={{ suffixIcon: null }}
+                  />
+                </Col>
+                <Col span={24} md={6}>
+                  <ProFormSelect
+                    name="location"
+                    label="Địa điểm"
+                    options={LOCATION_LIST.filter(
+                      (item) => item.value !== "ALL"
+                    )}
+                    placeholder="Please select a location"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn địa điểm!" },
+                    ]}
+                  />
+                </Col>
+                <Col span={24} md={6}>
+                  <ProFormDigit
+                    label="Mức lương"
+                    name="salary"
+                    rules={[
+                      { required: true, message: "Vui lòng không bỏ trống" },
+                    ]}
+                    placeholder="Nhập mức lương"
+                    fieldProps={{
+                      addonAfter: " đ",
+                      formatter: (value) =>
+                        `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ","),
+                      parser: (value) =>
+                        +(value || "").replace(/\$\s?|(,*)/g, ""),
+                    }}
+                  />
+                </Col>
+                <Col span={24} md={6}>
+                  <ProFormDigit
+                    label="Số lượng"
+                    name="quantity"
+                    rules={[
+                      { required: true, message: "Vui lòng không bỏ trống" },
+                    ]}
+                    placeholder="Nhập số lượng"
+                  />
+                </Col>
+                <Col span={24} md={6}>
+                  <ProFormSelect
+                    name="level"
+                    label="Trình độ"
+                    valueEnum={{
+                      INTERN: "INTERN",
+                      FRESHER: "FRESHER",
+                      JUNIOR: "JUNIOR",
+                      MIDDLE: "MIDDLE",
+                      SENIOR: "SENIOR",
+                    }}
+                    placeholder="Please select a level"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn level!" },
+                    ]}
+                  />
+                </Col>
+
+                {(dataUpdate?.id || !id) && (
+                  <Col span={24} md={6}>
+                    <ProForm.Item
+                      name="company"
+                      label="Thuộc Công Ty"
+                      rules={[
+                        { required: true, message: "Vui lòng chọn company!" },
+                      ]}
+                    >
+                      <DebounceSelect
+                        allowClear
+                        showSearch
+                        defaultValue={companies}
+                        value={companies}
+                        placeholder="Chọn công ty"
+                        fetchOptions={fetchCompanyList}
+                        onChange={(newValue: any) => {
+                          if (!newValue) {
+                            setCompanies([]);
+                          } else if (Array.isArray(newValue)) {
+                            setCompanies(newValue);
+                          } else {
+                            setCompanies([newValue]);
+                          }
+                        }}
+                        style={{ width: "100%" }}
+                      />
+                    </ProForm.Item>
+                  </Col>
+                )}
+              </Row>
+              <Row gutter={[20, 20]}>
+                <Col span={24} md={6}>
+                  <ProFormDatePicker
+                    label="Ngày bắt đầu"
+                    name="startDate"
+                    fieldProps={{ format: "DD/MM/YYYY" }}
+                    rules={[
+                      { required: true, message: "Vui lòng chọn ngày cấp" },
+                    ]}
+                    placeholder="dd/mm/yyyy"
+                  />
+                </Col>
+                <Col span={24} md={6}>
+                  <ProFormDatePicker
+                    label="Ngày kết thúc"
+                    name="endDate"
+                    fieldProps={{ format: "DD/MM/YYYY" }}
+                    rules={[
+                      { required: true, message: "Vui lòng chọn ngày cấp" },
+                    ]}
+                    placeholder="dd/mm/yyyy"
+                  />
+                </Col>
+                <Col span={24} md={6}>
+                  <ProFormSwitch
+                    label="Trạng thái"
+                    name="active"
+                    checkedChildren="ACTIVE"
+                    unCheckedChildren="INACTIVE"
+                    initialValue={true}
+                    fieldProps={{ defaultChecked: true }}
+                  />
+                </Col>
+                <Col span={24}>
+                  <ProForm.Item
+                    name="description"
+                    label="Miêu tả job"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập miêu tả job!" },
                     ]}
                   >
-                    <DebounceSelect
-                      allowClear
-                      showSearch
-                      defaultValue={companies}
-                      value={companies}
-                      placeholder="Chọn công ty"
-                      fetchOptions={fetchCompanyList}
-                      onChange={(newValue: any) => {
-                        if (newValue?.length === 0 || newValue?.length === 1) {
-                          setCompanies(newValue as ICompanySelect[]);
-                        }
+                    <ReactQuill
+                      theme="snow"
+                      value={value}
+                      onChange={(content) => {
+                        setValue(content);
+                        form.setFieldValue("description", content);
                       }}
-                      style={{ width: "100%" }}
                     />
                   </ProForm.Item>
                 </Col>
-              )}
-            </Row>
-            <Row gutter={[20, 20]}>
-              <Col span={24} md={6}>
-                <ProFormDatePicker
-                  label="Ngày bắt đầu"
-                  name="startDate"
-                  fieldProps={{ format: "DD/MM/YYYY" }}
-                  rules={[
-                    { required: true, message: "Vui lòng chọn ngày cấp" },
-                  ]}
-                  placeholder="dd/mm/yyyy"
-                />
-              </Col>
-              <Col span={24} md={6}>
-                <ProFormDatePicker
-                  label="Ngày kết thúc"
-                  name="endDate"
-                  fieldProps={{ format: "DD/MM/YYYY" }}
-                  rules={[
-                    { required: true, message: "Vui lòng chọn ngày cấp" },
-                  ]}
-                  placeholder="dd/mm/yyyy"
-                />
-              </Col>
-              <Col span={24} md={6}>
-                <ProFormSwitch
-                  label="Trạng thái"
-                  name="active"
-                  checkedChildren="ACTIVE"
-                  unCheckedChildren="INACTIVE"
-                  initialValue={true}
-                  fieldProps={{ defaultChecked: true }}
-                />
-              </Col>
-              <Col span={24}>
-                <ProForm.Item
-                  name="description"
-                  label="Miêu tả job"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập miêu tả job!" },
-                  ]}
-                >
-                  <ReactQuill theme="snow" value={value} onChange={setValue} />
-                </ProForm.Item>
-              </Col>
-            </Row>
-            <Divider />
-          </ProForm>
+              </Row>
+              <Divider />
+            </ProForm>
+          </Spin>
         </ConfigProvider>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

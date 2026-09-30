@@ -54,6 +54,12 @@ export const WebSocketProvider = ({
   );
 
   useEffect(() => {
+    // Tạm thời tắt kết nối WebSocket ở Frontend khi Backend chưa cấu hình
+    const ENABLE_WEBSOCKET = false;
+    if (!ENABLE_WEBSOCKET) {
+      return;
+    }
+
     const token = localStorage.getItem("access_token");
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -96,6 +102,10 @@ export const WebSocketProvider = ({
           handleReceiveMessage(msg);
         }
       );
+    };
+
+    stompClient.onWebSocketError = (error) => {
+      console.warn("[STOMP WebSocket Error]:", error);
     };
 
     stompClient.onStompError = (frame: Frame) => {
