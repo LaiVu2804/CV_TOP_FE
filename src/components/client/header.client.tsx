@@ -57,12 +57,7 @@ const Header = (props: any) => {
   };
 
   const handleLogout = async () => {
-    const res = await callLogout();
-    if (res && res && +res.statusCode === 200) {
-      logout();
-      message.success("Đăng xuất thành công");
-      navigate("/");
-    }
+    logout();
   };
 
   const itemsDropdown = [

@@ -130,12 +130,7 @@ const JobByEmail = (props: any) => {
       if (res && res.data) {
         setSubscriber(res.data);
         const d = res.data.skills;
-        const arr = d.map((item: any) => {
-          return {
-            label: item.name as string,
-            value: (item.id + "") as string,
-          };
-        });
+        const arr = d.map((item: any) => item.id + "");
         form.setFieldValue("skills", arr);
       }
     };

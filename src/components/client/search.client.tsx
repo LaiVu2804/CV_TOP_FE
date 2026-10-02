@@ -65,13 +65,7 @@ const SearchClient = () => {
         : `skills=${values?.skills?.join(",")}`;
     }
 
-    if (!query) {
-      notification.error({
-        message: "Có lỗi xảy ra",
-        description: "Vui lòng chọn tiêu chí để search",
-      });
-      return;
-    }
+
     navigate(`/job?${query}`);
   };
 

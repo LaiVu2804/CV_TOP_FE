@@ -47,14 +47,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    const res = await callLogout();
-    if (res && +res.statusCode === 200) {
-      setUser(null);
-      setIsAuthenticated(false);
-      localStorage.removeItem("access_token");
-      message.success("Đăng xuất thành công");
-      window.location.href = "/";
+    try {
+      await callLogout();
+    } catch (error) {
+      // Ignore error if backend fails
     }
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem("access_token");
+    message.success("Đăng xuất thành công");
+    window.location.href = "/";
   };
 
   return (

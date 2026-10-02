@@ -75,9 +75,9 @@ export default function App() {
       path: "/admin",
       element: (
         <LayoutApp>
-          <ProtectedRoute>
-            <LayoutAdmin />
-          </ProtectedRoute>
+
+          <LayoutAdmin />
+
         </LayoutApp>
       ),
       errorElement: <NotFound />,
