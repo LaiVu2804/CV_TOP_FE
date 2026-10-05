@@ -6,7 +6,6 @@ import styles from "styles/auth.module.scss";
 import { useAuth } from "@/context/auth.context";
 
 const LoginPage = () => {
-  const navigate = useNavigate();
   const [isSubmit, setIsSubmit] = useState(false);
   const { login, isAuthenticated } = useAuth();
 

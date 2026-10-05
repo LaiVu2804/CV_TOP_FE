@@ -4,7 +4,6 @@ import { IGetAccount } from "@/types/backend";
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useState, useEffect } from "react";
 import { message } from "antd";
-import { useNavigate } from "react-router-dom";
 
 interface IAuthContext {
   isAuthenticated: boolean;
