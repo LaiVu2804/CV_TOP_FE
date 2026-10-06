@@ -141,14 +141,21 @@ const JobByEmail = (props: any) => {
     let query = `page=1&size=100&sort=createdAt,desc`;
 
     const res = await callFetchAllSkill(query);
-    if (res && res.data) {
-      const arr =
-        res?.data?.result?.map((item) => {
-          return {
-            label: item.name as string,
-            value: (item.id + "") as string,
-          };
-        }) ?? [];
+    if (res) {
+      const rawData = Array.isArray((res as any)?.data?.data)
+        ? (res as any).data.data
+        : Array.isArray(res.data)
+        ? res.data
+        : Array.isArray((res.data as any)?.result)
+        ? (res.data as any).result
+        : [];
+
+      const arr = rawData.map((item: any) => {
+        return {
+          label: item.name as string,
+          value: (item.id + "") as string,
+        };
+      });
       setOptionsSkills(arr);
     }
   };
@@ -219,6 +226,13 @@ const JobByEmail = (props: any) => {
                     <MonitorOutlined /> Tìm theo kỹ năng...
                   </>
                 }
+                showSearch
+                filterOption={(input, option) =>
+                  (option?.label as string ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                listHeight={360}
                 optionLabelProp="label"
                 options={optionsSkills}
               />

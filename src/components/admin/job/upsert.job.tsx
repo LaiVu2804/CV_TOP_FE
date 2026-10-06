@@ -62,7 +62,7 @@ const ViewUpsertJob = (props: any) => {
 
   useEffect(() => {
     if (skillList) {
-      const arr = skillList.map((item) => {
+      const arr = skillList.map((item: any) => {
         return {
           label: item.name as string,
           value: `${item.id}`,

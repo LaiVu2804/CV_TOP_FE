@@ -42,14 +42,23 @@ const SearchClient = () => {
     let query = `page=1&size=100&sort=createdAt,desc`;
 
     const res = await callFetchAllSkill(query);
-    if (res && res.data) {
-      const arr =
-        res?.data?.result?.map((item) => {
-          return {
-            label: item.name as string,
-            value: (item.id + "") as string,
-          };
-        }) ?? [];
+    if (res) {
+      const rawData = Array.isArray((res as any)?.data?.data)
+        ? (res as any).data.data
+        : Array.isArray(res.data)
+        ? res.data
+        : Array.isArray((res.data as any)?.result)
+        ? (res.data as any).result
+        : Array.isArray(res as any)
+        ? (res as any)
+        : [];
+
+      const arr = rawData.map((item: any) => {
+        return {
+          label: item.name as string,
+          value: (item.id + "") as string,
+        };
+      });
       setOptionsSkills(arr);
     }
   };
@@ -64,7 +73,6 @@ const SearchClient = () => {
         ? query + `&skills=${values?.skills?.join(",")}`
         : `skills=${values?.skills?.join(",")}`;
     }
-
 
     navigate(`/job?${query}`);
   };
@@ -81,11 +89,18 @@ const SearchClient = () => {
         <Col span={24}>
           <h2>Việc Làm IT Cho Developer "Chất"</h2>
         </Col>
+
         <Col span={24} md={16}>
           <ProForm.Item name="skills">
             <Select
               mode="multiple"
               allowClear
+              showSearch
+              filterOption={(input, option) =>
+                (option?.label as string ?? "")
+                  .toLowerCase()
+                  .includes(input.toLowerCase())
+              }
               suffixIcon={null}
               style={{ width: "100%" }}
               placeholder={
@@ -94,10 +109,12 @@ const SearchClient = () => {
                 </>
               }
               optionLabelProp="label"
+              listHeight={360}
               options={optionsSkills}
             />
           </ProForm.Item>
         </Col>
+
         <Col span={12} md={4}>
           <ProForm.Item name="location">
             <Select

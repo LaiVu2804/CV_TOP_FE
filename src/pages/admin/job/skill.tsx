@@ -50,15 +50,24 @@ const SkillPage = () => {
     }
     if (!sortBy) sortBy = "updatedAt,desc";
 
-    let filterStr = "";
-    if (filters?.name) filterStr += `${sfLike("name", filters.name)}`;
-
-    setParams({
+    setParams((prev) => ({
+      ...prev,
       current: pagination.current || 1,
       pageSize: pagination.pageSize || 10,
       sort: sortBy,
+    }));
+  };
+
+  const handleSearch = (values: any) => {
+    let filterStr = "";
+    if (values.name) {
+      filterStr = `${sfLike("name", values.name)}`;
+    }
+    setParams((prev) => ({
+      ...prev,
+      current: 1,
       filter: filterStr,
-    });
+    }));
   };
 
   const columns: ProColumns<ISkill>[] = [
@@ -68,7 +77,7 @@ const SkillPage = () => {
       width: 50,
       align: "center",
       render: (text, record, index) => {
-        return <>{index + 1 + (meta.page - 1) * meta.pageSize}</>;
+        return <>{index + 1 + (params.current - 1) * params.pageSize}</>;
       },
       hideInSearch: true,
     },
@@ -157,9 +166,13 @@ const SkillPage = () => {
         dataSource={skills}
         onChange={handleTableChange}
         scroll={{ x: true }}
+        onSubmit={handleSearch}
+        onReset={() =>
+          setParams((prev) => ({ ...prev, current: 1, filter: "" }))
+        }
         pagination={{
-          current: meta.page,
-          pageSize: meta.pageSize,
+          current: params.current,
+          pageSize: params.pageSize,
           showSizeChanger: true,
           total: meta.total,
           showTotal: (total, range) => (

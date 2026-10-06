@@ -77,13 +77,29 @@ export const useSkill = (queryString: string | null = null) => {
     },
   });
 
+  const listSkills = (Array.isArray((query.data as any)?.data?.data)
+    ? (query.data as any).data.data
+    : Array.isArray(query.data?.data)
+    ? query.data.data
+    : (query.data?.data?.result ?? [])) as ISkill[];
+
+  const searchParams = new URLSearchParams(queryString || "");
+  const pageFromQuery = Number(searchParams.get("page")) || 1;
+  const pageSizeFromQuery = Number(searchParams.get("size")) || 10;
+
+  const total = query.data?.data?.meta?.total ?? listSkills.length;
+  const pageSize = query.data?.data?.meta?.pageSize ?? pageSizeFromQuery;
+  const page = query.data?.data?.meta?.page ?? pageFromQuery;
+  const pages =
+    query.data?.data?.meta?.pages ?? (Math.ceil(total / pageSize) || 1);
+
   return {
-    skills: query.data?.data?.result ?? [],
-    meta: query.data?.data?.meta ?? {
-      page: 1,
-      pageSize: 10,
-      total: 0,
-      pages: 0,
+    skills: listSkills,
+    meta: {
+      page,
+      pageSize,
+      total,
+      pages,
     },
     isFetching: query.isFetching,
 

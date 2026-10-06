@@ -75,12 +75,12 @@ const Header = (props: any) => {
     },
     ...(user?.role?.permissions?.length
       ? [
-          {
-            label: <Link to={"/admin"}>Trang Quản Trị</Link>,
-            key: "admin",
-            icon: <FireOutlined />,
-          },
-        ]
+        {
+          label: <Link to={"/admin"}>Trang Quản Trị</Link>,
+          key: "admin",
+          icon: <FireOutlined />,
+        },
+      ]
       : []),
 
     {
@@ -103,7 +103,7 @@ const Header = (props: any) => {
           {!isMobile ? (
             <div style={{ display: "flex", gap: 30 }}>
               <div className={styles["brand"]}>
-                <FaReact onClick={() => navigate("/")} title="Hỏi Dân IT" />
+                <FaReact onClick={() => navigate("/")} title="CV TOP" />
               </div>
               <div className={styles["top-menu"]}>
                 <ConfigProvider
