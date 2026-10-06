@@ -30,6 +30,7 @@ const DataTable = <
     actionRef,
     dateFormatter = 'string',
     rowSelection,
+    ...rest
 }: ProTableProps<T, U, ValueType>) => {
     return (
         <ConfigProvider locale={vi_VN}>
@@ -53,6 +54,7 @@ const DataTable = <
                 actionRef={actionRef}
                 dateFormatter={dateFormatter}
                 rowSelection={rowSelection}
+                {...rest}
             />
         </ConfigProvider>
     );

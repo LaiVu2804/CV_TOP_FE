@@ -118,7 +118,7 @@ const ViewUpsertJob = (props: any) => {
         skills: skillIds,
         startDate: dataUpdate.startDate ? dayjs(dataUpdate.startDate) : null,
         endDate: dataUpdate.endDate ? dayjs(dataUpdate.endDate) : null,
-        active:
+        isActive:
           (dataUpdate as any)?.isActive ?? (dataUpdate as any)?.active ?? true,
         description: dataUpdate.description || "",
       });
@@ -151,6 +151,13 @@ const ViewUpsertJob = (props: any) => {
       return { id: +item };
     });
 
+    const jobStatus =
+      values.isActive !== undefined
+        ? Boolean(values.isActive)
+        : values.active !== undefined
+        ? Boolean(values.active)
+        : true;
+
     const commonData = {
       name: values.name,
       skills: arrSkills,
@@ -162,8 +169,8 @@ const ViewUpsertJob = (props: any) => {
       description: value, // Lấy từ state ReactQuill
       startDate: dayjs(values.startDate).toDate(),
       endDate: dayjs(values.endDate).toDate(),
-      active: values.active,
-      isActive: values.active,
+      active: jobStatus,
+      isActive: jobStatus,
     };
 
     if (dataUpdate?.id || id) {
@@ -197,6 +204,7 @@ const ViewUpsertJob = (props: any) => {
             <ProForm
               form={form}
               onFinish={onFinish}
+              initialValues={{ isActive: true }}
               submitter={{
                 searchConfig: {
                   resetText: "Hủy",
@@ -352,11 +360,9 @@ const ViewUpsertJob = (props: any) => {
                 <Col span={24} md={6}>
                   <ProFormSwitch
                     label="Trạng thái"
-                    name="active"
+                    name="isActive"
                     checkedChildren="ACTIVE"
                     unCheckedChildren="INACTIVE"
-                    initialValue={true}
-                    fieldProps={{ defaultChecked: true }}
                   />
                 </Col>
                 <Col span={24}>

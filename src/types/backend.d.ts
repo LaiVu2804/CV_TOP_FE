@@ -102,7 +102,8 @@
         description: string;
         startDate: Date;
         endDate: Date;
-        active: boolean;
+        active?: boolean;
+        isActive?: boolean;
 
         createdBy?: string;
         isDeleted?: boolean;

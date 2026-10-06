@@ -57,19 +57,12 @@ const UserPage = () => {
         sorter.updatedAt === "ascend" ? "updatedAt,asc" : "updatedAt,desc";
     if (!sortBy) sortBy = "updatedAt,desc";
 
-    let filterStr = "";
-    if (filters?.name) filterStr += `${sfLike("name", filters.name)}`;
-    if (filters?.email) {
-      filterStr +=
-        (filterStr ? " and " : "") + `${sfLike("email", filters.email)}`;
-    }
-
-    setParams({
+    setParams((prev) => ({
+      ...prev,
       current: pagination.current || 1,
       pageSize: pagination.pageSize || 10,
       sort: sortBy,
-      filter: filterStr,
-    });
+    }));
   };
 
   const handleSearch = (values: any) => {
