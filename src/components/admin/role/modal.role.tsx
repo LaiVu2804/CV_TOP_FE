@@ -18,6 +18,7 @@ import { CheckSquareOutlined } from "@ant-design/icons";
 import ModuleApi from "./module.api";
 import { useEffect } from "react";
 import { groupByPermission } from "@/config/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface IProps {
   openModal: boolean;
@@ -41,6 +42,7 @@ const ModalRole = (props: IProps) => {
     setSingleRole,
   } = props;
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
 
   const submitRole = async (valuesForm: any) => {
     const { description, active, name, permissions } = valuesForm;
@@ -65,6 +67,8 @@ const ModalRole = (props: IProps) => {
       const res = await callUpdateRole(role, singleRole.id);
       if (res.data) {
         message.success("Cập nhật role thành công");
+        queryClient.invalidateQueries({ queryKey: ["roles"] });
+        queryClient.invalidateQueries({ queryKey: ["account"] });
         handleReset();
         reloadTable();
       } else {
@@ -83,6 +87,7 @@ const ModalRole = (props: IProps) => {
       const res = await callCreateRole(role);
       if (res.data) {
         message.success("Thêm mới role thành công");
+        queryClient.invalidateQueries({ queryKey: ["roles"] });
         handleReset();
         reloadTable();
       } else {

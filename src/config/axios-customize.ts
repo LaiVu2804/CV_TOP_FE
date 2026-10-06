@@ -95,7 +95,7 @@ instance.interceptors.response.use(
 /**
  * Replaces main `axios` instance with the custom-one.
  *
- * @param cfg - Axios configuration object.
+ * @param cfg - Axios configuration object. 
  * @returns A promise object of a response of the HTTP request with the 'data' object already
  * destructured.
  */

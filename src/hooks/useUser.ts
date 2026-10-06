@@ -34,6 +34,7 @@ export const useUser = (queryString: string | null = null) => {
     onSuccess: () => {
       message.success("Thêm user thành công");
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["account"] });
     },
 
     onError: (error: any) => {
@@ -53,6 +54,7 @@ export const useUser = (queryString: string | null = null) => {
     onSuccess: () => {
       message.success("Cập nhật User thành công");
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["account"] });
     },
     onError: (error: any) => {
       notification.error({
