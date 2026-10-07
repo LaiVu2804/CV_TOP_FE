@@ -95,8 +95,11 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    flex: 1;
+    min-width: 0;
 
     .extra {
+      flex-shrink: 0;
       a,
       span {
         cursor: pointer;

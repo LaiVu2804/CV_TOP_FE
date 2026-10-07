@@ -15,7 +15,6 @@ import { isMobile } from "react-device-detect";
 import { FaReact } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { callLogout } from "@/config/api";
 import ManageAccount from "./modal/manage.account";
 import { useAuth } from "@/context/auth.context";
 import NotificationBell from "./header/notification.bell";
@@ -49,6 +48,11 @@ const Header = (props: any) => {
       label: <Link to={"/company"}>Top Công ty IT</Link>,
       key: "/company",
       icon: <RiseOutlined />,
+    },
+    {
+      label: <Link to={"/skills"}>Kỹ Năng & Xu Hướng</Link>,
+      key: "/skills",
+      icon: <FireOutlined />,
     },
   ];
 
@@ -101,7 +105,14 @@ const Header = (props: any) => {
       <div className={styles["header-section"]}>
         <div className={styles["container"]}>
           {!isMobile ? (
-            <div style={{ display: "flex", gap: 30 }}>
+            <div
+              style={{
+                display: "flex",
+                gap: 30,
+                width: "100%",
+                alignItems: "center",
+              }}
+            >
               <div className={styles["brand"]}>
                 <FaReact onClick={() => navigate("/")} title="CV TOP" />
               </div>
@@ -120,6 +131,8 @@ const Header = (props: any) => {
                     selectedKeys={[current]}
                     mode="horizontal"
                     items={items}
+                    disabledOverflow={true}
+                    style={{ flex: 1, minWidth: 0, borderBottom: "none" }}
                   />
                 </ConfigProvider>
                 <div className={styles["extra"]}>

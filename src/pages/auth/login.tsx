@@ -6,6 +6,7 @@ import styles from "styles/auth.module.scss";
 import { useAuth } from "@/context/auth.context";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [isSubmit, setIsSubmit] = useState(false);
   const { login, isAuthenticated } = useAuth();
 
@@ -16,10 +17,9 @@ const LoginPage = () => {
   useEffect(() => {
     //đã login => redirect to '/'
     if (isAuthenticated) {
-      // navigate('/');
-      window.location.href = "/";
+      navigate("/");
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const onFinish = async (values: any) => {
     const { username, password } = values;
@@ -32,7 +32,7 @@ const LoginPage = () => {
       login(res.data.user);
       message.success("Đăng nhập tài khoản thành công!");
 
-      window.location.href = callback ? callback : "/";
+      navigate(callback ? callback : "/");
     } else {
       notification.error({
         message: "Có lỗi xảy ra",

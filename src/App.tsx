@@ -6,7 +6,6 @@ import {
   useLocation,
 } from "react-router-dom";
 import NotFound from "components/share/not.found";
-import Loading from "components/share/loading";
 import LoginPage from "pages/auth/login";
 import RegisterPage from "pages/auth/register";
 import LayoutAdmin from "components/admin/layout.admin";
@@ -28,7 +27,6 @@ import ClientJobDetailPage from "./pages/job/detail";
 import ClientCompanyPage from "./pages/company";
 import ClientCompanyDetailPage from "./pages/company/detail";
 import JobTabs from "./pages/admin/job/job.tabs";
-import { useAuth } from "@/context/auth.context";
 
 const LayoutClient = () => {
   const [searchTerm, setSearchTerm] = useState("");
